@@ -82,17 +82,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Allowed / Ignored Paths & Commands
+    | Allowed / Ignored Domains, Paths & Commands
     |--------------------------------------------------------------------------
     |
-    | The following array lists the URI paths and Artisan commands that will
-    | not be watched by Telescope. In addition to this list, some Laravel
-    | commands, like migrations and queue commands, are always ignored.
+    | The following arrays list the Domains, URI paths and Artisan commands
+    | to be watched or ignored by Telescope. Some Laravel commands, like
+    | those for migrations and queues, are always ignored by Telescope.
     |
     */
 
+    'only_domains' => [
+        // 'api.example.com'
+    ],
+
     'only_paths' => [
         // 'api/*'
+    ],
+
+    'ignore_domains' => [
+        // 'telescope.example.com'
     ],
 
     'ignore_paths' => [

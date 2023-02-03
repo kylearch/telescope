@@ -212,8 +212,27 @@ class Telescope
      */
     protected static function requestIsToApprovedDomain($request): bool
     {
-        return is_null(config('telescope.domain')) ||
-            config('telescope.domain') !== $request->getHost();
+        if (!empty($only = config('telescope.only_domains', []))) {
+            return in_array($request->getHost(), $only);
+        }
+
+        return !in_array($request->getHost(),
+            collect(config('telescope.ignore_domains', []))
+            ->unless(is_null(config('telescope.domain')), function ($domains) {
+                $domains->push(config('telescope.domain'));
+            })
+            ->all()
+        );
+    }
+
+    protected static function isTelescopePathless(): bool
+    {
+        return config('telescope.path') === null || config('telescope.path') === '';
+    }
+
+    protected static function isHorizonPathless(): bool
+    {
+        return config('horizon.path') === null || config('horizon.path') === '';
     }
 
     /**
@@ -232,11 +251,13 @@ class Telescope
             collect([
                 'telescope-api*',
                 'vendor/telescope*',
-                (config('horizon.path') ?? 'horizon').'*',
                 'vendor/horizon*',
             ])
             ->merge(config('telescope.ignore_paths', []))
-            ->unless(is_null(config('telescope.path')), function ($paths) {
+            ->unless(static::isHorizonPathless(), function ($paths) {
+                return $paths->prepend(config('horizon.path') . '*');
+            })
+            ->unless(static::isTelescopePathless(), function ($paths) {
                 return $paths->prepend(config('telescope.path').'*');
             })
             ->all()
